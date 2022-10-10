@@ -6,7 +6,7 @@
 *************************************************************************/
 
 //required module/path to access the data in the server.js file 
-var DATA_SERVICE = require("data-service.js")
+var DATA_SERVICE = require("./data-service.js")
 
 //express.js module
 var express = require("express");
