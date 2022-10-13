@@ -1,7 +1,7 @@
 //Declared globally and file reading operation
 var fs = require("fs");
 var departments = []; 
-var employees = []; 
+var employees = [];   
 var managers = [];
 
 
@@ -16,7 +16,7 @@ exports.initialize = () => {//ES6 snytax
         employees = JSON.parse(data); //parsed object 
         fs.readFile("./data/departments.json", (err, data) => { //reads department.json within "data" directory on server
           if(err){
-            reject("unable to read file!");
+            reject("Failure to read file departments.json!");
           }
         else{
           departments = JSON.parse(data); //parsed object 
@@ -33,13 +33,13 @@ exports.initialize = () => {//ES6 snytax
 exports.getAllEmployees = () => {
 
   return new Promise(function(resolve,reject){
-    if(employees.length() != 0){  //returns full array of employee objects and uses resolve method
+    if(employees.length > 0){  //returns full array of employee objects and uses resolve method
     resolve(employees);  //resolve method 
     }
     else{
-    reject("No results has been returned.")
+    reject("No results has been returned.");
     }
-})
+});
 }
 
 
@@ -48,36 +48,35 @@ exports.getAllEmployees = () => {
 
     return new Promise(function(resolve, reject){
 
-    if (employees.length() != 0)  //employee array does not equal to 0 
+    if (employees.length > 0)  //employee array does not equal to 0 
         { 
-            for(let e = 0; e < employees[e].isManager.length(); i++){ //loop through the employee's dataset 
-            if (employees.isManager){ //checking to see "employee" object exists in Manager dataset 
+          for(let e = 0; e < employees.length; i++){ //loop through the employee's dataset 
+            if (employees[e].isManager){ //checking to see "employee" object exists in Manager dataset 
             managers.push(employees[e]) //returns the new length of array in the employee set 
             }
           //end of resolve method
             }
-        
+            resolve(managers); //resolve method
     }
-    else{
-        reject("No results returned")
-    }
-    resolve(managers); //resolve method
-    })
 
-  
+    else{
+        reject("No results returned");
+    }
+    });
+
   }
 
 //exported getDepartments() function
 exports.getDepartments = () => {
 
   return new Promise(function(resolve,reject){
-    if(departments.length() != 0){ //returns full array of department objects and uses resolve method
+    if(departments.length > 0){ //returns full array of department objects and uses resolve method
     resolve(departments); //resolve method 
     }
     else{
-    reject("No results has been returned.")
+    reject("No results has been returned.");
     }
-})
+});
 }
 
 

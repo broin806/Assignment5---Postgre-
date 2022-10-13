@@ -2,7 +2,7 @@
  * BTI325– Assignment 2 * I declare that this assignment is my own work in accordance with Seneca Academic Policy. 
  * No part * of this assignment has been copied manually or electronically from any other source * 
  * (including 3rd party web sites) or distributed to other students. * * Name: Broinson Jeyarajah Student ID: 
-101501229 Date:  * 2020-10-09 * Your app’s URL (from Cyclic) : 
+101501229 Date:  * 2020-10-09 * Your app’s URL (from Cyclic) : https://charming-blue-cape.cyclic.app/
 *************************************************************************/
 
 //required module/path to access the data in the server.js file 
@@ -44,9 +44,9 @@ app.get("/about", function(req,res){ //function is represented as the about page
 
 //responds to employees page's get requests
 app.get("/employees", function(req,res){ //function is represented as the employees page
-  res.sendFile(path.join(__dirname,"./data/employees.json"));
+
   DATA_SERVICE.getAllEmployees().then(function(data){ //Makes the call to the respective get() method to fetch data
-    res.json(data);//access the data from the function and send response back to client. 
+    res.json(data)//access the data from the function and send response back to client. 
 })
 .catch(function(err){//if any methods are intended to become unsuccessful
   res.json({"message" : err});
@@ -55,24 +55,22 @@ app.get("/employees", function(req,res){ //function is represented as the employ
 })
 
 
-
-
   //responds to departments page's get requests
 app.get("/departments", function(req,res){ //function is represented as the departments page
-    res.sendFile(path.join(__dirname,"./data/departments.json"));
+
     DATA_SERVICE.getDepartments().then(function(data){ //Makes the call to the respective get() method to fetch data
-      res.json(data);//access the data from the function and send response back to client. 
+      res.json(data)//access the data from the function and send response back to client. 
   })
   .catch(function(err){ //if any methods are intended to become unsuccessful
     res.json({"message" : err});
   })
 
-})
+});
 
 
  //responds to managers page's get requests
 app.get("/managers", function(req,res){ //function is represented as the managers page
-    res.sendFile(path.join(__dirname,"./data/managers.json"));
+
     DATA_SERVICE.getManagers().then(function(data){ //Makes the call to the respective get() method to fetch data
       res.json(data); //access the data from the function and send response back to client. 
   })
@@ -89,7 +87,6 @@ app.get("/managers", function(req,res){ //function is represented as the manager
 DATA_SERVICE.initialize().then(function(data){ //call app.listen() and the initialize function is successful. 
 app.listen(HTTP_PORT, onHttpStart);
 
-let err = "There is no data to fetch!"; 
 
 }).catch(function(err){// display the catch function as initialize method invoked reject method
   console.log(err);
