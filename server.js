@@ -3,6 +3,7 @@
  * No part * of this assignment has been copied manually or electronically from any other source * 
  * (including 3rd party web sites) or distributed to other students. * * Name: Broinson Jeyarajah 
  * Student ID: 101501229 Date:  * 2020-10-09 * Your app’s URL (from Heroku) : https://frightful-warlock-49079.herokuapp.com/
+ * 
 *************************************************************************/
 
 //REFERENCES 
@@ -16,7 +17,7 @@ var path = require('path');
 var fs = require('fs');
 var HTTP_PORT = process.env.PORT || 8080;  
 var multer = require('multer'); //required module 
-const e = require("express");
+
 
 
 //defining a storage variable using "multer.diskStorage"
@@ -27,23 +28,14 @@ var storage = multer.diskStorage({
   }
 }); 
 
-//Define an "upload" variable as multer({ storage: storage });
-const upload = multer({ storage: storage });
-
 //"static" middleware for css/site.css 
 app.use(express.static('public'));
 //body-parser
 //handle form data without file upload.
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-
-//app.use(bodyParser.urlencoded({ extended: true }));
-
-// // function which triggers the http server to listen for requests 
-// function onHttpStart(){
-//   console.log("Express http server listening on: " + HTTP_PORT);
-// }
-
+//Define an "upload" variable as multer({ storage: storage });
+const upload = multer({ storage: storage });
 
 
 //HOME AND ABOUT ROUTE 
@@ -73,6 +65,40 @@ app.get("/images/add", (req,res)=>{
 }); 
 
 
+ 
+ //Adding the "Post" route
+ app.post("/images/add", upload.single("imageFile"), function(req, res){
+   res.redirect("/images") //redirects to route "/image"
+ });
+
+
+
+ //Adding "Get" route /images using the "fs" module
+app.get("/images", (req,res) => {
+  fs.readdir("./public/images/uploaded", function(err, items){ //fs.readdir method
+    res.json(items); 
+    
+ })
+ })
+
+
+//route makes a call to the (promise-driven) function from the data-service.js module
+app.post("/employees/add", function(req,res){
+  //redirects to /employees
+  data_service.addEmployee(req.body).then(res.redirect('/employees'))
+  
+ //redirects to /employees
+   //resolve(data); //resolves successfully 
+   .catch((err)=>{   
+      res.json({"message" : err});
+      //console.log(err);
+  })
+}) 
+
+
+
+
+//Part 4: Adding New Routes to query "Employees"
 //responds to employees page's get requests
 app.get("/employees", (req,res)=>{ 
 
@@ -151,34 +177,6 @@ app.get("/managers", (req,res)=>{
 }) 
 
 
-//Adding "Get" route /images using the "fs" module
-app.get("/images", (req,res) => {
- fs.readdir("./public/images/uploaded", function(err, items){ //fs.readdir method
-   res.json(items); 
-   
-})
-})
-
-
-//Adding the "Post" route
-app.post("/images/add", upload.single("imageFile"), function(req, res){
-  res.redirect("/images") //redirects to route "/image"
-});
-
-
-
-//route makes a call to the (promise-driven) function from the data-service.js module
-app.post("/employees/add", function(req,res){
-  //redirects to /employees
-  data_service.addEmployee(req.body).then(res.redirect('/employees'))
-  
- //redirects to /employees
-   //resolve(data); //resolves successfully 
-   .catch((err)=>{   
-      res.json({"message" : err});
-      //console.log(err);
-  })
-}) 
 
 app.use((req,res)=>{ //404 error message
   res.status(404).send("Page Not Found");
@@ -186,8 +184,16 @@ app.use((req,res)=>{ //404 error message
 
 //setup http server to listen on HTTP_PORT
 
+
+
 data_service.initialize().then(()=>{ //call app.listen() and the initialize function is successful. 
 app.listen(HTTP_PORT, onHttpStart); //listen on HTTP_PORT 
+
+// function which triggers the http server to listen for requests 
+function onHttpStart(){
+  console.log("Express http server listening on: " + HTTP_PORT);
+}
+
 
 
 }).catch(()=>{// display the catch function as initialize method invoked reject method

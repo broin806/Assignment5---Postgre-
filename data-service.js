@@ -1,5 +1,5 @@
 //Declared globally and file reading operation
-const fs = require("fs");
+const fs = require('fs');
 var departments = []; 
 var employees = [];
 
@@ -26,9 +26,8 @@ exports.initialize = function() //read the corrresponding file
 //exported getAllEmployees() function
 exports.getAllEmployees = function(){
   return new Promise((resolve,reject)=>{
-      if (employees.length>0)
-          resolve(employees);
-      else
+    resolve(employees);
+      if (employees.length==0)
           reject("No results returned.");
   });
 }
@@ -87,6 +86,10 @@ exports.addEmployee = function(employeeData){ //function
     };
 
 
+
+//PART 5: Updating "data-service.js" to support the new "Employees" routes
+
+
 //getEmployeesByStatus(status) - returns a promise 
 
 exports.getEmployeesByStatus = function(emp_status){
@@ -97,10 +100,11 @@ exports.getEmployeesByStatus = function(emp_status){
       //resolve method of filtered array 
       resolve(Employee_Filters);
 
-      if(filteredEmployees.length == 0) //if 0 in set, function is invoked with reject method
+      if(Employee_Filters.length == 0) //if 0 in set, function is invoked with reject method
       reject("no results returned");
   });
 } 
+
 
 
 //getEmployeesByDepartment(department) - returns a promise 
@@ -136,7 +140,7 @@ exports.getEmployeesByManager = function(manager){
 
 //getEmployeeByNum(num) - returns a promise 
 
-exports.getEmployeesByNum= function(num){
+exports.getEmployeesByNum = function(num){
   return new Promise((resolve, reject) => {
     //one single "employee object" -- atches employeeNum property with num parameter
       let Num_Filters = employees.filter(employees => employees.employeeNum == num);
@@ -149,8 +153,5 @@ exports.getEmployeesByNum= function(num){
   }); 
   
 }
-
-
-
 
 
