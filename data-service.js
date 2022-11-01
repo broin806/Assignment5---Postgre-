@@ -100,8 +100,7 @@ exports.getEmployeesByStatus = function(emp_status){
       if(filteredEmployees.length == 0) //if 0 in set, function is invoked with reject method
       reject("no results returned");
   });
-}
-
+} 
 
 
 //getEmployeesByDepartment(department) - returns a promise 
