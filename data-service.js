@@ -1,86 +1,157 @@
 //Declared globally and file reading operation
-var fs = require("fs");
+const fs = require("fs");
 var departments = []; 
-var employees = []; 
-var managers = [];
+var employees = [];
 
 
-//exported initialize() function
-exports.initialize = () => {//ES6 snytax
-    return new Promise((resolve, reject) => { //returns a promise that passes the respective data with 'resolve method'  
-      fs.readFile("./data/employees.json", (err, data) => { //reads employees.json within "data" directory on server
-        if(err){
-          reject("Failure to read file employees.json!");
-        }
-      else{
-        employees = JSON.parse(data); //parsed object 
-        fs.readFile("./data/departments.json", (err, data) => { //reads department.json within "data" directory on server
-          if(err){
-            reject("unable to read file!");
-          }
-        else{
-          departments = JSON.parse(data); //parsed object 
-          resolve("FILES WAS A SUCCESS"); //only if both operations were successful, invoke resolve method to have promise communicate back to server.js
-        
-        }
+
+exports.initialize = function() //read the corrresponding file 
+{
+  return new Promise((resolve, reject)=>{
+     
+      fs.readFile('./data/employees.json',(err,data)=>{ //read employees data
+          if (err) reject("Failure to read file employees.json!");
+          employees = JSON.parse(data);
+      
+      fs.readFile('./data/departments.json',(err,data)=>{ //read departments data
+          if (err) reject("Failure to read file department.json!");
+          departments = JSON.parse(data);
+         // both employees and departments read successfully
+         resolve();
       });
-    }
-  });
-});
-} 
+    })
+  }); 
+}
 
 //exported getAllEmployees() function
-exports.getAllEmployees = () => {
-
-  return new Promise(function(resolve,reject){
-    if(employees.length() != 0){  //returns full array of employee objects and uses resolve method
-    resolve(employees);  //resolve method 
-    }
-    else{
-    reject("No results has been returned.")
-    }
-})
+exports.getAllEmployees = function(){
+  return new Promise((resolve,reject)=>{
+      if (employees.length>0)
+          resolve(employees);
+      else
+          reject("No results returned.");
+  });
 }
 
 
   //exported getManagers() function
-  exports.getManagers = () => {
-
+  exports.getManagers = function() {
     return new Promise(function(resolve, reject){
+      let managers = [];
 
-    if (employees.length() != 0)  //employee array does not equal to 0 
-        { 
-            for(let e = 0; e < employees[e].isManager.length(); i++){ //loop through the employee's dataset 
-            if (employees.isManager){ //checking to see "employee" object exists in Manager dataset 
-            managers.push(employees[e]) //returns the new length of array in the employee set 
-            }
-          //end of resolve method
-            }
-        
-    }
-    else{
-        reject("No results returned")
-    }
-    resolve(managers); //resolve method
-    })
-
-  
-  }
+      employees.forEach(function (employee) {
+        if (employee.isManager) {
+            managers.push(employee);
+        }
+    });
+    
+if (managers.length>0)
+    resolve(managers);
+else
+    reject("No results returned.");
+});
+}
 
 //exported getDepartments() function
-exports.getDepartments = () => {
+exports.getDepartments = function(){
 
   return new Promise(function(resolve,reject){
-    if(departments.length() != 0){ //returns full array of department objects and uses resolve method
+    if(departments.length > 0){ //returns full array of department objects and uses resolve method
     resolve(departments); //resolve method 
     }
-    else{
+    else {
     reject("No results has been returned.")
     }
 })
+} 
+
+
+//Adding "addEmployee" function within data-service.js with export property
+exports.addEmployee = function(employeeData){ //function
+      if(!employeeData.isManager) { //If employeeData.isManager is undefined
+            employeeData.isManager = false;
+      }
+      else{ //else set it to true
+        employeeData.isManager = true;
+      }
+      // set the employeeNum property of data to be the length of the "employees" array plus one (1).
+      employeeData.employeeNum = employees.length + 1;  
+      //Push the updated employeeData object onto the "employees" array
+      employees.push(employeeData); 
+
+      return new Promise(function(resolve,reject){
+        resolve(employees);
+        if(employees.length == 0) //undefined # of employees
+          reject("no employees has been returned!");
+      })
+    };
+
+
+//getEmployeesByStatus(status) - returns a promise 
+
+exports.getEmployeesByStatus = function(emp_status){
+  return new Promise((resolve, reject) => {
+    //array of employee objects
+      let Employee_Filters = employees.filter(employees => employees.status == emp_status);
+
+      //resolve method of filtered array 
+      resolve(Employee_Filters);
+
+      if(filteredEmployees.length == 0) //if 0 in set, function is invoked with reject method
+      reject("no results returned");
+  });
+}
+
+
+
+//getEmployeesByDepartment(department) - returns a promise 
+
+exports.getEmployeesByDepartments = function(department){
+  return new Promise((resolve, reject) => {
+    //array of employee objects
+      let Department_Filters = departments.filter(employees => employees.department == department);
+
+      //resolve method of filtered array 
+      resolve(Department_Filters);
+
+      if(Department_Filters.length == 0) //if 0 in set, function is invoked with reject method
+      reject("no results returned");
+  });
+}
+
+//getEmployeesByManagers(managers) - returns a promise 
+
+exports.getEmployeesByManager = function(manager){
+  return new Promise((resolve, reject) => {
+    //array of employee objects
+      let Managers_Filters = employees.filter(employees => employees.employeeManagerNum == manager);
+
+      //resolve method of filtered array 
+      resolve(Managers_Filters);
+
+      if(Managers_Filters.length == 0) //if 0 in set, function is invoked with reject method
+      reject("no results returned");
+  });
+}
+
+
+//getEmployeeByNum(num) - returns a promise 
+
+exports.getEmployeesByNum= function(num){
+  return new Promise((resolve, reject) => {
+    //one single "employee object" -- atches employeeNum property with num parameter
+      let Num_Filters = employees.filter(employees => employees.employeeNum == num);
+
+      //resolve method of filtered one single object
+      resolve(Num_Filters);
+
+      if(Num_Filters.length == 0) //if 0 in set, function is invoked with reject method
+      reject("no results returned");
+  }); 
+  
 }
 
 
 
 
-    
+
