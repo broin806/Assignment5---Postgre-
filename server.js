@@ -1,10 +1,9 @@
 /************************************************************************* * 
- * BTI325– Assignment 2 * I declare that this assignment is my own work in accordance with Seneca Academic Policy. 
+ * BTI325– Assignment 3 * I declare that this assignment is my own work in accordance with Seneca Academic Policy. 
  * No part * of this assignment has been copied manually or electronically from any other source * 
- * (including 3rd party web sites) or distributed to other students. * * Name: Broinson Jeyarajah Student ID: 
-101501229 Date:  * 2020-10-09 * Your app’s URL (from Cyclic) : https://charming-blue-cape.cyclic.app/
+ * (including 3rd party web sites) or distributed to other students. * * Name: Broinson Jeyarajah 
+ * Student ID: 101501229 Date:  * 2020-10-09 * Your app’s URL (from Heroku) : 
 *************************************************************************/
-
 
 //REFERENCES 
 //https://stackoverflow.com/questions/33355528/filtering-an-array-with-a-function-that-returns-a-promise
@@ -196,6 +195,5 @@ app.listen(HTTP_PORT, onHttpStart); //listen on HTTP_PORT
 })
 
   }
-});
-
+}); 
 
