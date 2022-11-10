@@ -1,8 +1,7 @@
 //Declared globally and file reading operation
-const fs = require('fs');
 var departments = []; 
 var employees = [];
-
+const fs = require('fs');
 
 
 exports.initialize = function() //read the corrresponding file 
@@ -26,8 +25,9 @@ exports.initialize = function() //read the corrresponding file
 //exported getAllEmployees() function
 exports.getAllEmployees = function(){
   return new Promise((resolve,reject)=>{
-    resolve(employees);
-      if (employees.length==0)
+      if (employees.length > 0)
+        resolve(employees);
+      else
           reject("No results returned.");
   });
 }
@@ -67,6 +67,7 @@ exports.getDepartments = function(){
 
 //Adding "addEmployee" function within data-service.js with export property
 exports.addEmployee = function(employeeData){ //function
+      return new Promise(function(resolve,reject){
       if(!employeeData.isManager) { //If employeeData.isManager is undefined
             employeeData.isManager = false;
       }
@@ -77,13 +78,12 @@ exports.addEmployee = function(employeeData){ //function
       employeeData.employeeNum = employees.length + 1;  
       //Push the updated employeeData object onto the "employees" array
       employees.push(employeeData); 
+      resolve();
+    }); 
+  }
+  
 
-      return new Promise(function(resolve,reject){
-        resolve(employees);
-        if(employees.length == 0) //undefined # of employees
-          reject("no employees has been returned!");
-      })
-    };
+        
 
 
 
@@ -152,6 +152,4 @@ exports.getEmployeesByNum = function(num){
       reject("no results returned");
   }); 
   
-}
-
-
+} 
