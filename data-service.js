@@ -152,7 +152,7 @@ exports.getEmployeesByNum = function(num){
       reject("no results returned");
   }); 
   
-<<<<<<< HEAD
+
 }
 
 
@@ -172,7 +172,4 @@ exports.updateEmployee = function(employeeData){
   });
 });
 };
-
-=======
-} 
->>>>>>> 719af9506e5a214b076ca5fb0e63260a7d1b7a10
+ 
