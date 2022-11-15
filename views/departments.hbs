@@ -1,0 +1,36 @@
+<div class="row">
+<div class="col-md-12">
+<h2>Departments</h2>
+<hr>
+{{!-- {!-- bootstrap classes --}} 
+ <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    {{!-- table contains 2 columns with respective details --}}
+                   <th>Department Number</th>
+                <th>Department Name</th>
+                </thead>
+   <tbody>
+    {{#each departments}}  
+    <tr>
+         {{!-- iterate over each resoective element --}}
+      <td><a href="/employees?department={{departmentId}}">{{departmentId}}</a></td>
+      <td><a href="/employees?department={{departmentId}}">{{departmentName}}</a></td>
+    </tr>
+    {{/each}}
+   </tbody> 
+</table>
+
+</div>
+</div>
+
+{{!-- unless helper --}}
+{{#unless departments}}
+
+{{!-- display the "message" if there are no departments --}}
+<div class="col-md-12 text-center">
+<strong>{{message}}</strong>
+</div>
+
+{{/unless}}
+</div>

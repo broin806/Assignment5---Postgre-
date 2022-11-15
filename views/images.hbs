@@ -3,6 +3,17 @@
 <h2>Images</h2>
 <hr />
 </div>
+{{!-- using handlebars #each helper --}}
+{{#each data}}
 <div class="col-md-4">
-<img src="/images/uploaded/1666908331449.jpg" class="img-responsive img-thumbnail" />
-</div>
+<img src="/images/uploaded/{{this}}" class="img-responsive img-thumbnail" />
+</div> 
+{{!-- if no images are being shown --}}
+{{else}}
+<div class="col-md-12">
+<strong>No Images Available</strong>
+{{!-- end of loop --}}
+  {{/each}} 
+</div> 
+
+

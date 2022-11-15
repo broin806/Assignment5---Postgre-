@@ -155,3 +155,20 @@ exports.getEmployeesByNum = function(num){
 }
 
 
+// Search through the "employees" array for an employee with an employeeNum
+exports.updateEmployee = function(employeeData){
+  return new Promise((resolve, reject) => {
+    employeeData.isManager = (employeeData.isManager) ? true : false;
+    return new Promise((resolve, reject) => {
+      employees.forEach(employee => { //for each employee set 
+        if (employee.employeeNum == employeeData.employeeNum) {
+          //  splice() method 
+               //overwrite with new employee passed in the function
+              employees.splice(employeeData.employeeNum - 1, 1, employeeData);
+          }
+      });
+      resolve(); //invoked method
+  });
+});
+};
+

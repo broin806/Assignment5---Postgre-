@@ -9,6 +9,8 @@
 //REFERENCES 
 //https://stackoverflow.com/questions/33355528/filtering-an-array-with-a-function-that-returns-a-promise
 //https://www.folkstalk.com/2022/07/how-to-filter-array-objesct-in-express-node-js-with-code-examples-3.html
+//https://stackoverflow.com/questions/10987452/handlebars-js-each-data-nested-in-if-data and WEEK 6 NOTES 
+
 
 var data_service  = require('./data-service.js')
 var express = require("express");
@@ -116,9 +118,9 @@ app.get("/employees", (req,res)=>{
   if(req.query.status){ //if query string is for status info
   ///employees?status=value
   data_service.getEmployeesByStatus(req.query.status).then((data)=>{ 
-    res.json(data);//access the data from the function and send response back to client. *JSON String*
-      }).catch((err)=>{ 
-      res.json({message : err});
+    res.render("employees", {employees:data});//access the data from the function and send response back to client. *JSON String*
+      }).catch(()=>{ 
+      res.render({message : "no results"});
         //console.log(err);
     });
   }
@@ -126,9 +128,9 @@ app.get("/employees", (req,res)=>{
   else if (req.query.department){ //if query string is for department info
     ////employees?department=value
     data_service.getEmployeesByDepartment(req.query.department).then((data)=>{ 
-      res.json(data);//access the data from the function and send response back to client. *JSON String*
-        }).catch((err)=>{ 
-        res.json({message : err});
+      res.render("employees", {employees:data});//access the data from the function and send response back to client. *JSON String*
+        }).catch(()=>{ 
+          res.render({message : "no results"});
           //console.log(err);
       })
     }
@@ -137,17 +139,17 @@ app.get("/employees", (req,res)=>{
     else if (req.query.manager){ //if query string is for managers info
       ////employees?manager=value
       data_service.getEmployeesByManager(req.query.manager).then((data)=>{ 
-        res.json(data);//access the data from the function and send response back to client. *JSON String*
-          }).catch((err)=>{ 
-          res.json({message : err});
+        res.render("employees", {employees:data});//access the data from the function and send response back to client. *JSON String*
+          }).catch(()=>{ 
+            res.render({message : "no results"});
             //console.log(err);
         })
   
     }else{ //REQUEST DOESNT CONTAIN STRING and return(s) all employees without filters using *JSON String*
         data_service.getAllEmployees().then((data)=>{ 
-          res.json(data);//access the data from the function and send response back to client. 
-            }).catch((err)=>{ 
-            res.json({message : err});
+          res.render("employees", {employees:data});//access the data from the function and send response back to client. 
+            }).catch(()=>{ 
+              res.render({message : "no results"});
               //console.log(err);
      });
     }
@@ -155,11 +157,15 @@ app.get("/employees", (req,res)=>{
 
 
   app.get("/employee/:empNum",(req,res)=>{
-    data_service.getEmployeeByNum(req.params.empNum).then((data)=>{
-        res.json(data);
-    }).catch((err)=>res.json({message: err}));
-})
-
+    data_service.getEmployeesByNum(req.params.empNum).then((data)=>{
+      res.render("employee", { employee: data });
+    }).catch(()=>{ 
+      res.render({message : "no results"});
+     
+    });
+  }
+)
+  
 
 //  //responds to managers page's get requests
 //  app.get("/managers", (req,res)=>{ 
@@ -177,17 +183,19 @@ app.get("/employees", (req,res)=>{
   //responds to departments page's get requests
   app.get("/departments", (req,res) => { 
     data_service.getDepartments().then((data)=>{ //Makes the call to the respective get() method to fetch data
-        res.json(data);//access the data from the function and send response back to client. 
-      }).catch((err)=>{ 
-      res.json({"message" : err});
+      res.render("departments", {departments: data});//access the data from the function and send response back to client. 
+      }).catch(()=>{ 
+        res.render({message : "no results"});
         //console.log(err);
   
     })
   
-  })
-  
+  }) 
 
   
+  
+
+
 //responds to addEmployees get requests
 app.get("/employees/add", (req,res)=>{ 
   res.render("addEmployee");  
@@ -211,9 +219,9 @@ app.get("/images/add", (req,res)=>{
 
  //Adding "Get" route /images using the "fs" module
 app.get("/images", (req,res) => {
-  fs.readdir("./public/images/uploaded", function(err, items){ //fs.readdir method
-    res.json(items); 
-    
+  fs.readdir("./public/images/uploaded", function(err, items){ //fs.readdir method (display array of images)
+   // res.json(items); 
+   res.render("images", {data: items, title: "Images"}); 
  })
  })
 
@@ -223,6 +231,12 @@ app.post("/employees/add", function(req,res){
  //redirects to /employees
  data_service.addEmployee(req.body)
  res.redirect('/employees');
+});
+
+
+app.post("/employee/update", function(req, res){ //Post Route
+  console.log(req.body); 
+  res.redirect("/employees"); 
 });
 
 
