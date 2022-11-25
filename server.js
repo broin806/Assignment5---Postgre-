@@ -234,12 +234,12 @@ app.post("/employees/add", function(req,res){
 });
 
 
-app.post("/employee/update", function(req, res){ //Post Route
-  console.log(req.body); 
-  res.redirect("/employees"); 
+app.post("/employee/update",(req,res)=>{ //Post route 
+  // console.log(req.body);
+   data_service.updateEmployee(req.body).then(()=>{
+       res.redirect("/employees");
+   });
 });
-
-
 
 
 
