@@ -6,10 +6,13 @@
  * 
 *************************************************************************/
 
+//POSTGRES 
+
 //REFERENCES 
 //https://stackoverflow.com/questions/33355528/filtering-an-array-with-a-function-that-returns-a-promise
 //https://www.folkstalk.com/2022/07/how-to-filter-array-objesct-in-express-node-js-with-code-examples-3.html
 //https://stackoverflow.com/questions/10987452/handlebars-js-each-data-nested-in-if-data and WEEK 6 NOTES 
+//Week 7 references 
 
 
 var data_service  = require('./data-service.js')
@@ -22,7 +25,7 @@ var multer = require('multer'); //required module
 const bodyParser = require("body-parser"); 
 var exphbs = require('express-handlebars');
 
-
+  
 app.engine('.hbs',exphbs.engine({ extname:'.hbs', defaultLayout:'main', 
 //Handlebars custom "helper"
 helpers:{ navLink:function(url, options){
@@ -117,24 +120,31 @@ app.get("/employees", (req,res)=>{
 
   if(req.query.status){ //if query string is for status info
   ///employees?status=value
-  data_service.getEmployeesByStatus(req.query.status).then((data)=>{ 
-    res.render("employees", {employees:data});//access the data from the function and send response back to client. *JSON String*
-      }).catch(()=>{ 
-      res.render({message : "no results"});
+  data_service.getEmployeesByStatus(req.query.status).then((data)=> { 
+    if(data.length>0){//condition that only renders "employees"
+    res.render("employees", {employees:data});
+    }
+    else{
+      res.render("employees",{ message: "no results" });
+    }
+  }).catch(()=> //error has shown before if promises are rejected
+        res.render("employees",{ message: "no results" }))
         //console.log(err);
-    });
-  }
+  }  
   
   else if (req.query.department){ //if query string is for department info
     ////employees?department=value
     data_service.getEmployeesByDepartment(req.query.department).then((data)=>{ 
-      res.render("employees", {employees:data});//access the data from the function and send response back to client. *JSON String*
-        }).catch(()=>{ 
-          res.render({message : "no results"});
-          //console.log(err);
-      })
-    }
-    
+      if(data.length>0){//condition that only renders "employees"
+        res.render("employees", {employees:data});
+        }
+        else{
+          res.render("employees",{ message: "no results" });
+        }
+      }).catch(()=> //error has shown before if promises are rejected
+            res.render("employees",{ message: "no results" }))
+            //console.log(err);
+      }  
   
     else if (req.query.manager){ //if query string is for managers info
       ////employees?manager=value
@@ -142,7 +152,7 @@ app.get("/employees", (req,res)=>{
         res.render("employees", {employees:data});//access the data from the function and send response back to client. *JSON String*
           }).catch(()=>{ 
             res.render({message : "no results"});
-            //console.log(err);
+            //console.log(err); 
         })
   
     }else{ //REQUEST DOESNT CONTAIN STRING and return(s) all employees without filters using *JSON String*
@@ -193,7 +203,6 @@ app.get("/employees", (req,res)=>{
   }) 
 
   
-  
 
 
 //responds to addEmployees get requests
@@ -242,6 +251,45 @@ app.post("/employee/update",(req,res)=>{ //Post route
 });
 
 
+//responds to add departments get requests
+app.get("/departments/add", (req,res)=>{ 
+  res.render("/views/addDepartment.hbs");  
+  //res.sendFile(path.join(__dirname,"/views/addEmployee.html"));
+});
+
+
+
+//route makes a call to the (promise-driven) function from the data-service.js module
+app.post("/departments/add", function(req,res){
+  //redirects to /departments
+  data_service.addDepartment(req.body).then(()=>{
+  res.redirect('/departments'); //directs to the departments 
+  })
+ });
+
+
+ app.post("/departments/update",(req,res)=>{ //Post route 
+  // console.log(req.body);
+   data_service.updateDepartment(req.body).then(()=>{
+       res.redirect("/departments");
+   });
+}); 
+
+
+app.get("/department/:departmentId", (req, res) =>{
+  dataservice.getDepartmentById(req.params.departmentId) //parameter value
+  //render a department view and pass data from promise
+  .then((data) => {res.render("department", { department: data })})
+
+  //if data is undefined
+  .catch(err => res.status(404).send("Department not found"))
+});
+
+
+
+
+
+
 
   // data_service.getAllEmployees().then((data)=>{ //Makes the call to the respective get() method to fetch data
   //   res.json(data);//access the data from the function and send response back to client. 
@@ -268,5 +316,4 @@ app.listen(HTTP_PORT, onHttpStart); //listen on HTTP_PORT
 }).catch(()=>{// display the catch function as initialize method invoked reject method
   console.log("Cannot open files!");
 }) 
-
 
