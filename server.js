@@ -1,15 +1,18 @@
 /************************************************************************* * 
- * BTI325– Assignment 4 * I declare that this assignment is my own work in accordance with Seneca Academic Policy. 
+ * BTI325– Assignment 5 * I declare that this assignment is my own work in accordance with Seneca Academic Policy. 
  * No part * of this assignment has been copied manually or electronically from any other source * 
  * (including 3rd party web sites) or distributed to other students. * * Name: Broinson Jeyarajah 
- * Student ID: 101501229 Date:  * 2020-11-13 * Your app’s URL (from Heroku) : 
+ * Student ID: 101501229 Date:  * 2020-11-27 * Your app’s URL (from Cyclic) : https://chartreuse-green-magpie-tie.cyclic.app
  * 
 *************************************************************************/
+
+//POSTGRES 
 
 //REFERENCES 
 //https://stackoverflow.com/questions/33355528/filtering-an-array-with-a-function-that-returns-a-promise
 //https://www.folkstalk.com/2022/07/how-to-filter-array-objesct-in-express-node-js-with-code-examples-3.html
 //https://stackoverflow.com/questions/10987452/handlebars-js-each-data-nested-in-if-data and WEEK 6 NOTES 
+//Week 7 references 
 
 
 var data_service  = require('./data-service.js')
@@ -22,7 +25,7 @@ var multer = require('multer'); //required module
 const bodyParser = require("body-parser"); 
 var exphbs = require('express-handlebars');
 
-
+  
 app.engine('.hbs',exphbs.engine({ extname:'.hbs', defaultLayout:'main', 
 //Handlebars custom "helper"
 helpers:{ navLink:function(url, options){
@@ -41,6 +44,7 @@ equal:function(lvalue, rvalue, options){
 }
 }
 }));
+
 
 
 
@@ -117,24 +121,31 @@ app.get("/employees", (req,res)=>{
 
   if(req.query.status){ //if query string is for status info
   ///employees?status=value
-  data_service.getEmployeesByStatus(req.query.status).then((data)=>{ 
-    res.render("employees", {employees:data});//access the data from the function and send response back to client. *JSON String*
-      }).catch(()=>{ 
-      res.render({message : "no results"});
+  data_service.getEmployeesByStatus(req.query.status).then((data)=> { 
+    if(data.length>0){//condition that only renders "employees"
+    res.render("employees", {employees:data});
+    }
+    else{
+      res.render("employees",{ message: "no results" });
+    }
+  }).catch(()=> //error has shown before if promises are rejected
+        res.render("employees",{ message: "no results" }))
         //console.log(err);
-    });
-  }
+  }  
   
   else if (req.query.department){ //if query string is for department info
     ////employees?department=value
     data_service.getEmployeesByDepartment(req.query.department).then((data)=>{ 
-      res.render("employees", {employees:data});//access the data from the function and send response back to client. *JSON String*
-        }).catch(()=>{ 
-          res.render({message : "no results"});
-          //console.log(err);
-      })
-    }
-    
+      if(data.length>0){//condition that only renders "employees"
+        res.render("employees", {employees:data});
+        }
+        else{
+          res.render("employees",{ message: "no results" });
+        }
+      }).catch(()=> //error has shown before if promises are rejected
+            res.render("employees",{ message: "no results" }))
+            //console.log(err);
+      }  
   
     else if (req.query.manager){ //if query string is for managers info
       ////employees?manager=value
@@ -142,7 +153,7 @@ app.get("/employees", (req,res)=>{
         res.render("employees", {employees:data});//access the data from the function and send response back to client. *JSON String*
           }).catch(()=>{ 
             res.render({message : "no results"});
-            //console.log(err);
+            //console.log(err); 
         })
   
     }else{ //REQUEST DOESNT CONTAIN STRING and return(s) all employees without filters using *JSON String*
@@ -156,15 +167,43 @@ app.get("/employees", (req,res)=>{
   })
 
 
-  app.get("/employee/:empNum",(req,res)=>{
-    data_service.getEmployeesByNum(req.params.empNum).then((data)=>{
-      res.render("employee", { employee: data });
-    }).catch(()=>{ 
-      res.render({message : "no results"});
-     
+  app.get("/employee/:empNum", (req, res) => {
+
+    // initialize an empty object to store the values
+    let viewData = {};
+
+    data_service.getEmployeesByNum(req.params.empNum).then((data) => {
+        if (data) {
+            viewData.employee = data; //store employee data in the "viewData" object as "employee"
+        } else {
+            viewData.employee = null; // set employee to null if none were returned
+        }
+    }).catch(() => {
+        viewData.employee = null; // set employee to null if there was an error 
+    }).then(data_service.getDepartments)
+    .then((data) => {
+        viewData.departments = data; // store department data in the "viewData" object as "departments"
+
+        // loop through viewData.departments and once we have found the departmentId that matches
+        // the employee's "department" value, add a "selected" property to the matching 
+        // viewData.departments object
+
+        for (let i = 0; i < viewData.departments.length; i++) {
+            if (viewData.departments[i].departmentId == viewData.employee.department) {
+                viewData.departments[i].selected = true;
+            }
+        }
+
+    }).catch(() => {
+        viewData.departments = []; // set departments to empty if there was an error
+    }).then(() => {
+        if (viewData.employee == null) { // if no employee - return an error
+            res.status(404).send("Employee Not Found");
+        } else {
+            res.render("employee", { viewData: viewData }); // render the "employee" view
+        }
     });
-  }
-)
+});
   
 
 //  //responds to managers page's get requests
@@ -192,15 +231,17 @@ app.get("/employees", (req,res)=>{
   
   }) 
 
-  
-  
-
 
 //responds to addEmployees get requests
 app.get("/employees/add", (req,res)=>{ 
-  res.render("addEmployee");  
+  // res.render("addEmployee");  
   //res.sendFile(path.join(__dirname,"/views/addEmployee.html"));
+  data_service.getDepartments()
+  //if getDepartments() promise is rejected
+  .then(data => res.render("addEmployee", {departments: data}))
+  .catch(err => res.render("addEmployee", {departments: []})); //send empty array 
 });
+
 
 //responds to addImages get requests
 app.get("/images/add", (req,res)=>{  
@@ -234,10 +275,57 @@ app.post("/employees/add", function(req,res){
 });
 
 
-app.post("/employee/update", function(req, res){ //Post Route
-  console.log(req.body); 
-  res.redirect("/employees"); 
+app.post("/employee/update",(req,res)=>{ //Post route 
+  // console.log(req.body);
+   data_service.updateEmployee(req.body).then(()=>{
+       res.redirect("/employees");
+   });
 });
+
+
+//responds to add departments get requests
+app.get("/departments/add", (req,res)=>{ 
+  res.render("addDepartment");  
+  //res.sendFile(path.join(__dirname,"/views/addEmployee.html"));
+});
+
+
+
+//route makes a call to the (promise-driven) function from the data-service.js module
+app.post("/departments/add", function(req,res){
+  //redirects to /departments
+  data_service.addDepartment(req.body).then(()=>{
+  res.redirect('/departments'); //directs to the departments 
+  })
+ });
+
+
+ app.post("/department/update",(req,res)=>{ //Post route 
+  // console.log(req.body);
+   data_service.updateDepartment(req.body).then(()=>{
+       res.redirect("/departments");
+   });
+}); 
+
+
+app.get("/department/:departmentId", (req, res) =>{
+  data_service.getDepartmentsById(req.params.departmentId) //parameter value
+  //render a department view and pass data from promise
+  .then((data) => {res.render("department", { department: data })})
+
+  //if data is undefined
+  .catch(err => res.status(404).send("Department not found"))
+});
+
+
+
+app.get('/employees/delete/:empNum', (req, res) => {
+  //invoke deleteEmployeeByNum(empNum) data-service method.
+  data_service.deleteEmployeeByNum(req.params.empNum)
+
+  .then((data) => res.redirect("/employees")) //redirect to user "/employees" view
+  .catch(() => res.status(500).send("Unable to Remove Employee / Employee not found"))
+})
 
 
 
@@ -249,9 +337,6 @@ app.post("/employee/update", function(req, res){ //Post Route
   // }).catch((err)=>{
   // res.json({"message" : err});
   // //console.log(err);
-
-
-
 
 
 app.use((req,res)=>{ //404 error message
@@ -268,5 +353,7 @@ app.listen(HTTP_PORT, onHttpStart); //listen on HTTP_PORT
 }).catch(()=>{// display the catch function as initialize method invoked reject method
   console.log("Cannot open files!");
 }) 
+
+
 
 
