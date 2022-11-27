@@ -2,7 +2,7 @@
  * BTI325– Assignment 5 * I declare that this assignment is my own work in accordance with Seneca Academic Policy. 
  * No part * of this assignment has been copied manually or electronically from any other source * 
  * (including 3rd party web sites) or distributed to other students. * * Name: Broinson Jeyarajah 
- * Student ID: 101501229 Date:  * 2020-11-27 * Your app’s URL (from Heroku) : https://hidden-spire-63494.herokuapp.com/
+ * Student ID: 101501229 Date:  * 2020-11-27 * Your app’s URL (from Cyclic) : 
  * 
 *************************************************************************/
 
@@ -326,9 +326,6 @@ app.get('/employees/delete/:empNum', (req, res) => {
   .then((data) => res.redirect("/employees")) //redirect to user "/employees" view
   .catch(() => res.status(500).send("Unable to Remove Employee / Employee not found"))
 })
-
-
-
 
 
 
