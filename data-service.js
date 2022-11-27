@@ -72,7 +72,8 @@ exports.getAllEmployees = function(){ //invoke Employee.findAll() function
     .then(()=>resolve(Employee.findAll()))
     .catch(()=>reject("no results returned")) 
 });
-};
+}; 
+
 
   // //exported getManagers() function
   // exports.getManagers = function() {
@@ -87,7 +88,7 @@ exports.getDepartments = function(){ //function will invoke the Department.findA
     Department.findAll().then(()=>resolve(Department.findAll()))
     .catch(()=>reject("no results returned and error occoured"))
 });
-};  
+}; 
 
 
 //Adding "addEmployee" function within data-service.js with export property
@@ -212,4 +213,18 @@ exports.getDepartmentsById = function(id) //will invoke the Department.findAll()
     //.then(data => resolve(data))//invoke resolve method for promise with data[0]
     .catch("no results returned")
   })
-};
+}; 
+
+
+//DELETE FUNCTIONS 
+exports.deleteEmployeeByNum = function(empNum)  { 
+  return new Promise((resolve,reject) => {
+      Employee.destroy({ //deletes employees for a certain employee
+          where: {
+              employeeNum: empNum}})
+              //"resolves" if the Employee was deleted ("destroyed").
+      .then(()=>resolve(Employee.destroy({where: {employeeNum:empNum}}))) 
+      .catch(()=>reject("unable to delete employees"))
+  })
+}; 
+

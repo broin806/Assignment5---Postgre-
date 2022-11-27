@@ -1,8 +1,8 @@
 /************************************************************************* * 
- * BTI325– Assignment 4 * I declare that this assignment is my own work in accordance with Seneca Academic Policy. 
+ * BTI325– Assignment 5 * I declare that this assignment is my own work in accordance with Seneca Academic Policy. 
  * No part * of this assignment has been copied manually or electronically from any other source * 
  * (including 3rd party web sites) or distributed to other students. * * Name: Broinson Jeyarajah 
- * Student ID: 101501229 Date:  * 2020-11-13 * Your app’s URL (from Heroku) : https://hidden-spire-63494.herokuapp.com/
+ * Student ID: 101501229 Date:  * 2020-11-27 * Your app’s URL (from Heroku) : https://hidden-spire-63494.herokuapp.com/
  * 
 *************************************************************************/
 
@@ -44,6 +44,7 @@ equal:function(lvalue, rvalue, options){
 }
 }
 }));
+
 
 
 
@@ -166,15 +167,43 @@ app.get("/employees", (req,res)=>{
   })
 
 
-  app.get("/employee/:empNum",(req,res)=>{
-    data_service.getEmployeesByNum(req.params.empNum).then((data)=>{
-      res.render("employee", { employee: data });
-    }).catch(()=>{ 
-      res.render({message : "no results"});
-     
+  app.get("/employee/:empNum", (req, res) => {
+
+    // initialize an empty object to store the values
+    let viewData = {};
+
+    data_service.getEmployeesByNum(req.params.empNum).then((data) => {
+        if (data) {
+            viewData.employee = data; //store employee data in the "viewData" object as "employee"
+        } else {
+            viewData.employee = null; // set employee to null if none were returned
+        }
+    }).catch(() => {
+        viewData.employee = null; // set employee to null if there was an error 
+    }).then(data_service.getDepartments)
+    .then((data) => {
+        viewData.departments = data; // store department data in the "viewData" object as "departments"
+
+        // loop through viewData.departments and once we have found the departmentId that matches
+        // the employee's "department" value, add a "selected" property to the matching 
+        // viewData.departments object
+
+        for (let i = 0; i < viewData.departments.length; i++) {
+            if (viewData.departments[i].departmentId == viewData.employee.department) {
+                viewData.departments[i].selected = true;
+            }
+        }
+
+    }).catch(() => {
+        viewData.departments = []; // set departments to empty if there was an error
+    }).then(() => {
+        if (viewData.employee == null) { // if no employee - return an error
+            res.status(404).send("Employee Not Found");
+        } else {
+            res.render("employee", { viewData: viewData }); // render the "employee" view
+        }
     });
-  }
-)
+});
   
 
 //  //responds to managers page's get requests
@@ -202,14 +231,17 @@ app.get("/employees", (req,res)=>{
   
   }) 
 
-  
-
 
 //responds to addEmployees get requests
 app.get("/employees/add", (req,res)=>{ 
-  res.render("addEmployee");  
+  // res.render("addEmployee");  
   //res.sendFile(path.join(__dirname,"/views/addEmployee.html"));
+  data_service.getDepartments()
+  //if getDepartments() promise is rejected
+  .then(data => res.render("addEmployee", {departments: data}))
+  .catch(err => res.render("addEmployee", {departments: []})); //send empty array 
 });
+
 
 //responds to addImages get requests
 app.get("/images/add", (req,res)=>{  
@@ -253,7 +285,7 @@ app.post("/employee/update",(req,res)=>{ //Post route
 
 //responds to add departments get requests
 app.get("/departments/add", (req,res)=>{ 
-  res.render("/views/addDepartment.hbs");  
+  res.render("addDepartment");  
   //res.sendFile(path.join(__dirname,"/views/addEmployee.html"));
 });
 
@@ -268,7 +300,7 @@ app.post("/departments/add", function(req,res){
  });
 
 
- app.post("/departments/update",(req,res)=>{ //Post route 
+ app.post("/department/update",(req,res)=>{ //Post route 
   // console.log(req.body);
    data_service.updateDepartment(req.body).then(()=>{
        res.redirect("/departments");
@@ -277,13 +309,24 @@ app.post("/departments/add", function(req,res){
 
 
 app.get("/department/:departmentId", (req, res) =>{
-  dataservice.getDepartmentById(req.params.departmentId) //parameter value
+  data_service.getDepartmentsById(req.params.departmentId) //parameter value
   //render a department view and pass data from promise
   .then((data) => {res.render("department", { department: data })})
 
   //if data is undefined
   .catch(err => res.status(404).send("Department not found"))
 });
+
+
+
+app.get('/employees/delete/:empNum', (req, res) => {
+  //invoke deleteEmployeeByNum(empNum) data-service method.
+  data_service.deleteEmployeeByNum(req.params.empNum)
+
+  .then((data) => res.redirect("/employees")) //redirect to user "/employees" view
+  .catch(() => res.status(500).send("Unable to Remove Employee / Employee not found"))
+})
+
 
 
 
@@ -297,9 +340,6 @@ app.get("/department/:departmentId", (req, res) =>{
   // }).catch((err)=>{
   // res.json({"message" : err});
   // //console.log(err);
-
-
-
 
 
 app.use((req,res)=>{ //404 error message
@@ -316,4 +356,7 @@ app.listen(HTTP_PORT, onHttpStart); //listen on HTTP_PORT
 }).catch(()=>{// display the catch function as initialize method invoked reject method
   console.log("Cannot open files!");
 }) 
+
+
+
 
